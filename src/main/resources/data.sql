@@ -22,10 +22,10 @@ CREATE TABLE roles (
 -- Usuarios
 CREATE TABLE usuarios (
                           id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-                          nombre VARCHAR(100),
-                          apellido VARCHAR(100),
-                          dni VARCHAR(8) UNIQUE,
-                          celular VARCHAR(20),
+                          nombre VARCHAR(100) NOT NULL,
+                          apellido VARCHAR(100) NOT NULL,
+                          dni VARCHAR(8) NOT NULL UNIQUE,
+                          celular VARCHAR(20) NOT NULL,
                           email VARCHAR(150) NOT NULL UNIQUE,
                           contrasena VARCHAR(255) NOT NULL,
                           id_rol INT NOT NULL,
