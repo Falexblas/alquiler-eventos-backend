@@ -55,7 +55,7 @@ public class AuthController {
         usuario.setNombre(registerRequest.getNombre());
         usuario.setApellido(registerRequest.getApellido());
         usuario.setEmail(registerRequest.getEmail());
-        usuario.setTelefono(registerRequest.getTelefono());
+        usuario.setCelular(registerRequest.getTelefono());
         usuario.setContrasena(registerRequest.getContrasena());
         
         // Asignar rol por defecto (CLIENTE)

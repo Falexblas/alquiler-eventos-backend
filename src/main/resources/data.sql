@@ -29,7 +29,7 @@ CREATE TABLE usuarios (
                           email VARCHAR(150) NOT NULL UNIQUE,
                           contrasena VARCHAR(255) NOT NULL,
                           id_rol INT NOT NULL,
-                          fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                          fecha_registro TIMESTAMP,
                           FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
 

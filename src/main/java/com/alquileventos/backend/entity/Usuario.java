@@ -1,16 +1,15 @@
 package com.alquileventos.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Usuario {
@@ -25,14 +24,17 @@ public class Usuario {
     
     @Column(name = "apellido", nullable = false, length = 100)
     private String apellido;
-    
+
+    @Column(name = "dni", nullable = false, unique = true, length = 8)
+    private String dni;
+
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
     
-    @Column(name = "telefono", length = 20)
-    private String telefono;
+    @Column(name = "celular", length = 20)
+    private String celular;
     
-    @Column(name = "contrasena", nullable = false, length = 255)
+    @Column(name = "contrasena", nullable = false)
     private String contrasena;
     
     @Column(name = "fecha_registro")

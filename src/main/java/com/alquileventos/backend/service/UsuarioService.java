@@ -44,7 +44,7 @@ public class UsuarioService {
                 usuario.setNombre(usuarioActualizado.getNombre());
                 usuario.setApellido(usuarioActualizado.getApellido());
                 usuario.setEmail(usuarioActualizado.getEmail());
-                usuario.setTelefono(usuarioActualizado.getTelefono());
+                usuario.setCelular(usuarioActualizado.getCelular());
                 
                 // Solo actualizar contraseña si se proporciona una nueva
                 if (usuarioActualizado.getContrasena() != null && !usuarioActualizado.getContrasena().isEmpty()) {
