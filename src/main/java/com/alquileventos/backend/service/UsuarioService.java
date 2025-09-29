@@ -17,7 +17,7 @@ public class UsuarioService {
     
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    
+
     public List<Usuario> findAll() {
         return usuarioRepository.findAll();
     }
@@ -31,10 +31,6 @@ public class UsuarioService {
     }
     
     public Usuario save(Usuario usuario) {
-        // Encriptar contraseña antes de guardar
-        if (usuario.getContrasena() != null) {
-            usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
-        }
         return usuarioRepository.save(usuario);
     }
     
@@ -43,10 +39,10 @@ public class UsuarioService {
             .map(usuario -> {
                 usuario.setNombre(usuarioActualizado.getNombre());
                 usuario.setApellido(usuarioActualizado.getApellido());
+                usuario.setDni(usuarioActualizado.getDni());
                 usuario.setEmail(usuarioActualizado.getEmail());
                 usuario.setCelular(usuarioActualizado.getCelular());
-                
-                // Solo actualizar contraseña si se proporciona una nueva
+
                 if (usuarioActualizado.getContrasena() != null && !usuarioActualizado.getContrasena().isEmpty()) {
                     usuario.setContrasena(passwordEncoder.encode(usuarioActualizado.getContrasena()));
                 }
@@ -59,6 +55,8 @@ public class UsuarioService {
             })
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
     }
+
+
     
     public void deleteById(Integer id) {
         if (!usuarioRepository.existsById(id)) {

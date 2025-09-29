@@ -15,8 +15,6 @@ import java.util.Collections;
 public class CustomUserPrincipal implements UserDetails {
     
     private Integer id;
-    private String nombre;
-    private String apellido;
     private String email;
     private String contrasena;
     private String rol;
@@ -24,8 +22,6 @@ public class CustomUserPrincipal implements UserDetails {
     public static CustomUserPrincipal create(Usuario usuario) {
         return new CustomUserPrincipal(
             usuario.getIdUsuario(),
-            usuario.getNombre(),
-            usuario.getApellido(),
             usuario.getEmail(),
             usuario.getContrasena(),
             usuario.getRol().getNombreRol()

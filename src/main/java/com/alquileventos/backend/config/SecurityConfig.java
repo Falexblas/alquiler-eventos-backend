@@ -1,5 +1,6 @@
 package com.alquileventos.backend.config;
 
+import com.alquileventos.backend.security.CustomUserDetailsService;
 import com.alquileventos.backend.security.JwtAuthenticationEntryPoint;
 import com.alquileventos.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,8 @@ import java.util.Arrays;
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-    
+
+    private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     
@@ -54,8 +56,7 @@ public class SecurityConfig {
                 .requestMatchers("/tipos-evento/**").permitAll()
                 .requestMatchers("/mobiliario/**").permitAll()
                 .requestMatchers("/reservas/disponibilidad").permitAll()
-                .requestMatchers("/usuarios").hasRole("ADMIN")
-                .requestMatchers("/usuarios/**").hasAnyRole("ADMIN", "CLIENTE")
+                .requestMatchers("/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/reservas/**").hasAnyRole("ADMIN", "CLIENTE")
                 .requestMatchers("/pagos/**").hasAnyRole("ADMIN", "CLIENTE")
                 .anyRequest().authenticated()

@@ -13,9 +13,10 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     Optional<Usuario> findByEmail(String email);
+    Optional<Usuario> findByDni(String dni);
     
     boolean existsByEmail(String email);
-    
+
     List<Usuario> findByRol_IdRol(Integer idRol);
     
     @Query("SELECT u FROM Usuario u WHERE u.nombre LIKE %:nombre% OR u.apellido LIKE %:apellido%")
