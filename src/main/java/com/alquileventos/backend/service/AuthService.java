@@ -25,6 +25,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UsuarioService usuarioService;
 
     /**
      * Registro de nuevo usuario
@@ -33,26 +34,19 @@ public class AuthService {
     @Transactional
     public void register(RegisterRequest req) {
 
-        if (usuarioRepository.findByEmail(req.getEmail()).isPresent()) {
-            throw new RuntimeException("El correo ya está registrado");
-        }
-        if (usuarioRepository.findByDni(req.getDni()).isPresent()) {
-            throw new RuntimeException("El DNI ya está registrado");
-        }
-
         Rol rolCliente = rolRepository.findByNombreRol("CLIENTE")
                 .orElseThrow(() -> new RuntimeException("Rol CLIENTE no encontrado"));
 
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombre(req.getNombre());
         nuevoUsuario.setApellido(req.getApellido());
-        nuevoUsuario.setEmail(req.getEmail());
+        nuevoUsuario.setEmail(req.getEmail().toLowerCase());
         nuevoUsuario.setDni(req.getDni());
         nuevoUsuario.setCelular(req.getCelular());
-        nuevoUsuario.setContrasena(passwordEncoder.encode(req.getContrasena()));
+        nuevoUsuario.setContrasena(req.getContrasena());
         nuevoUsuario.setRol(rolCliente);
 
-        usuarioRepository.save(nuevoUsuario);
+        usuarioService.save(nuevoUsuario);
     }
 
     /**

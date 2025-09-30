@@ -6,6 +6,7 @@ import com.alquileventos.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -41,29 +42,34 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/locales/**").permitAll()
-                .requestMatchers("/distritos/**").permitAll()
-                .requestMatchers("/tipos-evento/**").permitAll()
-                .requestMatchers("/mobiliario/**").permitAll()
-                .requestMatchers("/reservas/disponibilidad").permitAll()
-                .requestMatchers("/usuarios/**").hasRole("ADMIN")
-                .requestMatchers("/reservas/**").hasAnyRole("ADMIN", "CLIENTE")
-                .requestMatchers("/pagos/**").hasAnyRole("ADMIN", "CLIENTE")
-                .anyRequest().authenticated()
-            );
-        
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Publico
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/locales/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/distritos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/tipos-evento/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/mobiliario/**").permitAll()
+                        .requestMatchers("/reservas/disponibilidad").permitAll()
+
+                        // Cliente autenticado
+                        .requestMatchers("/usuarios/{id}/profile").hasRole("CLIENTE")
+                        .requestMatchers("/reservas/**").hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers("/pagos/**").hasAnyRole("CLIENTE", "ADMIN")
+
+                        // Administrador
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
+                );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
         return http.build();
     }
     

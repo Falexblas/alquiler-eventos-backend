@@ -17,65 +17,28 @@ import java.util.List;
 public class UsuarioController {
     
     private final UsuarioService usuarioService;
-    
-    @GetMapping
-    public ResponseEntity<List<Usuario>> getAllUsuarios() {
-        List<Usuario> usuarios = usuarioService.findAll();
-        return ResponseEntity.ok(usuarios);
-    }
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable Integer id) {
-        return usuarioService.findById(id)
-            .map(usuario -> ResponseEntity.ok(usuario))
-            .orElse(ResponseEntity.notFound().build());
-    }
-    
-    @PostMapping
-    public ResponseEntity<Usuario> createUsuario(@Valid @RequestBody Usuario usuario) {
-        if (usuarioService.existsByEmail(usuario.getEmail())) {
+
+    /**
+     * Cliente
+     */
+
+    @PutMapping("/profile/{id}")
+    public ResponseEntity<Usuario> updateProfile(
+            @PathVariable Integer id,
+            @Valid @RequestBody Usuario usuario) {
+        try{
+            Usuario updatedUser = usuarioService.updateProfile(id, usuario);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e){
             return ResponseEntity.badRequest().build();
         }
-        Usuario nuevoUsuario = usuarioService.save(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
     }
-    
-    @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable Integer id, @Valid @RequestBody Usuario usuario) {
-        try {
-            Usuario usuarioActualizado = usuarioService.update(id, usuario);
-            return ResponseEntity.ok(usuarioActualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUsuario(@PathVariable Integer id) {
-        try {
-            usuarioService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Usuario> getUsuarioByEmail(@PathVariable String email) {
-        return usuarioService.findByEmail(email)
-            .map(usuario -> ResponseEntity.ok(usuario))
-            .orElse(ResponseEntity.notFound().build());
-    }
-    
-    @GetMapping("/rol/{idRol}")
-    public ResponseEntity<List<Usuario>> getUsuariosByRol(@PathVariable Integer idRol) {
-        List<Usuario> usuarios = usuarioService.findByRol(idRol);
-        return ResponseEntity.ok(usuarios);
-    }
-    
-    @GetMapping("/buscar")
-    public ResponseEntity<List<Usuario>> buscarUsuarios(@RequestParam String termino) {
-        List<Usuario> usuarios = usuarioService.searchByNombre(termino);
-        return ResponseEntity.ok(usuarios);
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> getUserProfile(
+            @PathVariable Integer id){
+        return usuarioService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
