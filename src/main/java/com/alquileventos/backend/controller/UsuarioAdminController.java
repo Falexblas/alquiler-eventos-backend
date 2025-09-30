@@ -66,23 +66,23 @@ public class UsuarioAdminController {
         }
     }
 
-//    @GetMapping("/email/{email}")
-//    public ResponseEntity<Usuario> getUsersByEmail(@PathVariable String email) {
-//        return usuarioService.findByEmail(email)
-//                .map(ResponseEntity::ok)
-//                .orElse(ResponseEntity.notFound().build());
-//    }
-//
-//    @GetMapping("/rol/{idRol}")
-//    public ResponseEntity<List<Usuario>> getUsersByRol(@PathVariable Integer idRol) {
-//        List<Usuario> users = usuarioService.findByRol(idRol);
-//        return ResponseEntity.ok(users);
-//    }
-//
-//    @GetMapping("/buscar")
-//    public ResponseEntity<List<Usuario>> searchUser(@RequestParam String keyword) {
-//        List<Usuario> users = usuarioService.findByNameOrLastname(keyword);
-//        return ResponseEntity.ok(users);
-//    }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Usuario> getUsersByEmail(@PathVariable String email) {
+        return usuarioService.findByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/rol/{idRol}")
+    public ResponseEntity<List<Usuario>> getUsersByRol(@PathVariable Integer idRol) {
+        List<Usuario> users = usuarioService.findByRol(idRol);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Usuario>> searchUser(@RequestParam String keyword) {
+        List<Usuario> users = usuarioService.findByNameOrLastname(keyword);
+        return ResponseEntity.ok(users);
+    }
 }
 
