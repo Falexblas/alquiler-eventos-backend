@@ -108,7 +108,7 @@ public class UsuarioService {
         return usuarioRepository.findByRol_IdRol(idRol);
     }
 
-    public List<Usuario> SearchByNameOrLastname(String keyword) {
+    public List<Usuario> findByNameOrLastname(String keyword) {
         return usuarioRepository.findByNombreOrApellidoContaining(keyword, keyword);
     }
 }

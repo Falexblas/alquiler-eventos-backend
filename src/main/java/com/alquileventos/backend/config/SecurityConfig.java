@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Publico
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/locales/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/distritos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/tipos-evento/**").permitAll()
@@ -59,12 +60,11 @@ public class SecurityConfig {
                         .requestMatchers("/reservas/disponibilidad").permitAll()
 
                         // Cliente autenticado
-                        .requestMatchers("/usuarios/{id}/profile").hasRole("CLIENTE")
+                        .requestMatchers("/usuarios/*/profile").hasRole("CLIENTE")
                         .requestMatchers("/reservas/**").hasAnyRole("CLIENTE", "ADMIN")
                         .requestMatchers("/pagos/**").hasAnyRole("CLIENTE", "ADMIN")
 
                         // Administrador
-                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
