@@ -25,11 +25,10 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity()
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     
@@ -50,22 +49,26 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Publico
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/locales/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/distritos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/tipos-evento/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/mobiliario/**").permitAll()
-                        .requestMatchers("/reservas/disponibilidad").permitAll()
+                        //Auth publico
+                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers("/api/admin/auth/login").permitAll()
 
-                        // Cliente autenticado
-                        .requestMatchers("/usuarios/*/profile").hasRole("CLIENTE")
-                        .requestMatchers("/reservas/**").hasAnyRole("CLIENTE", "ADMIN")
-                        .requestMatchers("/pagos/**").hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers("/actuator/health").permitAll()
+
+                        // Publico
+                        .requestMatchers(HttpMethod.GET, "/api/locales/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/distritos").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tipos-evento").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/mobiliario").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reservas/disponibilidad").permitAll()
+
+                        // Cliente
+                        .requestMatchers("/api/usuarios/me/**").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/reservas").hasRole("CLIENTE")
+                        .requestMatchers("/api/reservas/mis-reservas").hasRole("CLIENTE")
 
                         // Administrador
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 );
@@ -75,10 +78,11 @@ public class SecurityConfig {
     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        //Configurar para react y dominio
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

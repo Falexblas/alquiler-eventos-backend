@@ -1,33 +1,36 @@
 package com.alquileventos.backend.controller;
 
-import com.alquileventos.backend.dto.LoginRequest;
-import com.alquileventos.backend.dto.LoginResponse;
-import com.alquileventos.backend.dto.RegisterRequest;
+import com.alquileventos.backend.dto.auth.AuthResponseDTO;
+import com.alquileventos.backend.dto.auth.LoginRequest;
+import com.alquileventos.backend.dto.auth.RegisterRequest;
+import com.alquileventos.backend.dto.common.ApiResponseDTO;
 import com.alquileventos.backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<ApiResponseDTO<AuthResponseDTO>> login(
             @Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.authenticate(loginRequest));
+        AuthResponseDTO response = authService.login(loginRequest);
+        return ResponseEntity.ok(ApiResponseDTO.success("Inicio de sesión exitoso", response));
     }
     
     @PostMapping("/register")
-    public ResponseEntity<String> register(
+    public ResponseEntity<ApiResponseDTO<AuthResponseDTO>> register(
             @Valid @RequestBody RegisterRequest registerRequest) {
-        authService.register(registerRequest);
-        return ResponseEntity.ok("Usuario registrado exitosamente!");
+        AuthResponseDTO response = authService.register(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponseDTO.success("Registro exitoso.", response));
     }
 }

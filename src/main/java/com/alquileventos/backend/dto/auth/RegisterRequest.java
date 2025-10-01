@@ -1,4 +1,4 @@
-package com.alquileventos.backend.dto;
+package com.alquileventos.backend.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,11 +17,12 @@ public class RegisterRequest {
     @Size(max = 100, message = "El apellido no puede exceder 100 caracteres")
     private String apellido;
 
-    @NotBlank @Size(min=8, max=8)
+    @NotBlank @Size(min=8, max=8, message = "DNI debe tener 8 dígitos")
     private String dni;
 
-    @NotBlank @Pattern(regexp = "^9\\d{8}$")
-    @Size(max = 9, message = "El teléfono no puede exceder 9 caracteres")
+    @NotBlank(message = "El celular es obligatorio")
+    @Pattern(regexp = "^9\\d{8}$")
+    @Size(max = 9, message = "El celular debe tener 9 dígitos y empezar con 9")
     private String celular;
 
     @NotBlank(message = "El email es obligatorio")
