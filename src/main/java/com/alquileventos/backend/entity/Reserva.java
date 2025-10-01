@@ -1,9 +1,7 @@
 package com.alquileventos.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -68,6 +66,7 @@ public class Reserva {
         fechaReserva = LocalDateTime.now();
     }
     
+    @Getter
     public enum EstadoReserva {
         PENDIENTE("Pendiente"),
         CONFIRMADA("Confirmada"),
@@ -78,9 +77,6 @@ public class Reserva {
         EstadoReserva(String valor) {
             this.valor = valor;
         }
-        
-        public String getValor() {
-            return valor;
-        }
+
     }
 }

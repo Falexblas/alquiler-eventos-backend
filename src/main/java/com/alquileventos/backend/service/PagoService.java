@@ -1,5 +1,6 @@
 package com.alquileventos.backend.service;
 
+import com.alquileventos.backend.entity.MetodoPago;
 import com.alquileventos.backend.entity.Pago;
 import com.alquileventos.backend.repository.PagoRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +57,8 @@ public class PagoService {
     public List<Pago> findByEstado(Pago.EstadoPago estado) {
         return pagoRepository.findByEstado(estado);
     }
-    
-    public List<Pago> findByMetodoPago(Pago.MetodoPago metodoPago) {
+
+    public List<Pago> findByMetodoPago(MetodoPago metodoPago) {
         return pagoRepository.findByMetodoPago(metodoPago);
     }
     

@@ -1,9 +1,7 @@
 package com.alquileventos.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "fotos_locales")
@@ -17,10 +15,10 @@ public class FotoLocal {
     @Column(name = "id_foto")
     private Integer idFoto;
     
-    @Column(name = "url_foto", nullable = false, length = 255)
+    @Column(name = "url_foto", nullable = false)
     private String urlFoto;
     
-    @Column(name = "descripcion", length = 255)
+    @Column(name = "descripcion")
     private String descripcion;
     
     @ManyToOne(fetch = FetchType.LAZY)

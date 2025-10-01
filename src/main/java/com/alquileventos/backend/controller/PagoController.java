@@ -1,5 +1,6 @@
 package com.alquileventos.backend.controller;
 
+import com.alquileventos.backend.entity.MetodoPago;
 import com.alquileventos.backend.entity.Pago;
 import com.alquileventos.backend.service.PagoService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class PagoController {
     @GetMapping("/{id}")
     public ResponseEntity<Pago> getPagoById(@PathVariable Integer id) {
         return pagoService.findById(id)
-            .map(pago -> ResponseEntity.ok(pago))
+            .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
     
@@ -72,7 +73,7 @@ public class PagoController {
     }
     
     @GetMapping("/metodo/{metodoPago}")
-    public ResponseEntity<List<Pago>> getPagosByMetodo(@PathVariable Pago.MetodoPago metodoPago) {
+    public ResponseEntity<List<Pago>> getPagosByMetodo(@PathVariable MetodoPago metodoPago) {
         List<Pago> pagos = pagoService.findByMetodoPago(metodoPago);
         return ResponseEntity.ok(pagos);
     }

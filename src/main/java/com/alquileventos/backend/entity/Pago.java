@@ -1,9 +1,7 @@
 package com.alquileventos.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,9 +17,9 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_pago")
     private Integer idPago;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_pago")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_metodo_pago", nullable = false)
     private MetodoPago metodoPago;
     
     @Column(name = "monto", nullable = false, precision = 12, scale = 2)
@@ -34,7 +32,7 @@ public class Pago {
     @Column(name = "fecha_pago")
     private LocalDateTime fechaPago;
     
-    @Column(name = "comprobante_url", length = 255)
+    @Column(name = "comprobante_url")
     private String comprobanteUrl;
     
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,36 +43,18 @@ public class Pago {
     protected void onCreate() {
         fechaPago = LocalDateTime.now();
     }
-    
-    public enum MetodoPago {
-        TARJETA("Tarjeta"),
-        YAPE("Yape"),
-        PLIN("Plin");
-        
-        private final String valor;
-        
-        MetodoPago(String valor) {
-            this.valor = valor;
-        }
-        
-        public String getValor() {
-            return valor;
-        }
-    }
-    
+
+    @Getter
     public enum EstadoPago {
         PENDIENTE("Pendiente"),
         PAGADO("Pagado"),
         FALLIDO("Fallido");
-        
+
         private final String valor;
-        
+
         EstadoPago(String valor) {
             this.valor = valor;
         }
-        
-        public String getValor() {
-            return valor;
-        }
+
     }
 }

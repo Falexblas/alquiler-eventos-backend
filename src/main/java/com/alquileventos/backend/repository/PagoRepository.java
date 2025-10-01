@@ -1,5 +1,6 @@
 package com.alquileventos.backend.repository;
 
+import com.alquileventos.backend.entity.MetodoPago;
 import com.alquileventos.backend.entity.Pago;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,7 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
     
     List<Pago> findByEstado(Pago.EstadoPago estado);
     
-    List<Pago> findByMetodoPago(Pago.MetodoPago metodoPago);
+    List<Pago> findByMetodoPago(MetodoPago metodoPago);
     
     @Query("SELECT p FROM Pago p WHERE p.fechaPago BETWEEN :fechaInicio AND :fechaFin")
     List<Pago> findByRangoFechas(@Param("fechaInicio") LocalDateTime fechaInicio, 
