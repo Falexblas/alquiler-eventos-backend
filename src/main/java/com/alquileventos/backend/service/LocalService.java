@@ -1,96 +1,227 @@
 package com.alquileventos.backend.service;
 
-import com.alquileventos.backend.entity.Local;
-import com.alquileventos.backend.repository.LocalRepository;
+import com.alquileventos.backend.dto.local.*;
+import com.alquileventos.backend.entity.*;
+import com.alquileventos.backend.exception.ResourceNotFoundException;
+import com.alquileventos.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class LocalService {
     
     private final LocalRepository localRepository;
-    
-    public List<Local> findAll() {
-        return localRepository.findAll();
+    private final DistritoRepository distritoRepository;
+    private final TipoEventoRepository tipoEventoRepository;
+    private final FotoLocalRepository fotoLocalRepository;
+
+    /**
+     * Cliente
+     */
+
+    @Transactional(readOnly = true)
+    public List<LocalCardDTO> listarLocalesDisponibles(){
+        List<Local> locales = localRepository.findByEstado(Local.EstadoLocal.DISPONIBLE);
+        return locales.stream()
+                .map(this::convertirALocalCardDTO)
+                .collect(Collectors.toList());
     }
-    
-    public Optional<Local> findById(Integer id) {
-        return localRepository.findById(id);
+
+    @Transactional(readOnly = true)
+    public List<LocalCardDTO> buscarConFiltros(LocalFiltroDTO filtros){
+        List<Local> locales = localRepository.buscarConFiltros(
+                filtros.getIdDistrito(),
+                filtros.getIdTipoEvento(),
+                filtros.getAforoMin(),
+                filtros.getPrecioMin(),
+                filtros.getPrecioMax()
+        );
+        return locales.stream()
+                .map(this::convertirALocalCardDTO)
+                .collect(Collectors.toList());
     }
-    
-    public Local save(Local local) {
-        return localRepository.save(local);
+
+    @Transactional(readOnly = true)
+    public LocalDetalleDTO obtenerDetalle(Integer idLocal){
+        Local local = localRepository.findByIdWithFotos(idLocal)
+                .orElseThrow(() -> new ResourceNotFoundException("Local no encontrado con ID: " + idLocal));
+        return convertirALocalDetalleDTO(local);
     }
-    
-    public Local update(Integer id, Local localActualizado) {
-        return localRepository.findById(id)
-            .map(local -> {
-                local.setNombreLocal(localActualizado.getNombreLocal());
-                local.setDireccion(localActualizado.getDireccion());
-                local.setAforoMaximo(localActualizado.getAforoMaximo());
-                local.setPrecioHora(localActualizado.getPrecioHora());
-                local.setDescripcion(localActualizado.getDescripcion());
-                local.setEstado(localActualizado.getEstado());
-                
-                if (localActualizado.getDistrito() != null) {
-                    local.setDistrito(localActualizado.getDistrito());
-                }
-                
-                if (localActualizado.getTiposEvento() != null) {
-                    local.setTiposEvento(localActualizado.getTiposEvento());
-                }
-                
-                return localRepository.save(local);
-            })
-            .orElseThrow(() -> new RuntimeException("Local no encontrado con ID: " + id));
+
+    /**
+     * Administrador
+     */
+
+    @Transactional(readOnly = true)
+    public List<LocalAdminListDTO> listarTodos(){
+        List<Local> locales = localRepository.findAll();
+        return locales.stream()
+                .map(this::convertirALocalAdminListDTO)
+                .collect(Collectors.toList());
     }
-    
-    public void deleteById(Integer id) {
+
+    @Transactional(readOnly = true)
+    public List<LocalAdminListDTO> buscarPorNombre(String nombre){
+        List<Local> locales = localRepository.findByNombreLocalContainingIgnoreCase(nombre);
+        return locales.stream()
+                .map(this::convertirALocalAdminListDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public LocalDetalleDTO crear(CrearLocalDTO datos){
+
+        Distrito distrito = distritoRepository.findById(datos.getIdDistrito())
+                .orElseThrow(() -> new ResourceNotFoundException("Distrito no encontrado"));
+
+        List<TipoEvento> tiposEvento = tipoEventoRepository.findAllById(datos.getIdsTiposEvento());
+        if (tiposEvento.size() != datos.getIdsTiposEvento().size()) {
+            throw new ResourceNotFoundException("Algunos tipos de evento no existen");
+        }
+
+        Local local = new Local();
+        local.setNombreLocal(datos.getNombreLocal());
+        local.setDireccion(datos.getDireccion());
+        local.setDistrito(distrito);
+        local.setAforoMaximo(datos.getAforoMaximo());
+        local.setPrecioHora(datos.getPrecioHora());
+        local.setDescripcion(datos.getDescripcion());
+        local.setEstado(Local.EstadoLocal.DISPONIBLE);
+        local.setTiposEvento(tiposEvento);
+
+        Local localGuardado = localRepository.save(local);
+
+        if (datos.getUrlsFotos() != null && !datos.getUrlsFotos().isEmpty()) {
+            for (String url : datos.getUrlsFotos()) {
+                FotoLocal foto = new FotoLocal();
+                foto.setLocal(localGuardado);
+                foto.setUrlFoto(url);
+                fotoLocalRepository.save(foto);
+            }
+        }
+
+        return obtenerDetalle(localGuardado.getIdLocal());
+    }
+
+    @Transactional
+    public LocalDetalleDTO actualizar(Integer id, ActualizarLocalDTO datos){
+        Local local = localRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Local no encontrado con ID: " + id));
+
+        Distrito distrito = distritoRepository.findById(datos.getIdDistrito())
+                .orElseThrow(() -> new ResourceNotFoundException("Distrito no encontrado"));
+
+        List<TipoEvento> tiposEvento = tipoEventoRepository.findAllById(datos.getIdsTiposEvento());
+        if (tiposEvento.size() != datos.getIdsTiposEvento().size()) {
+            throw new ResourceNotFoundException("Algunos tipos de evento no existen");
+        }
+
+        local.setNombreLocal(datos.getNombreLocal());
+        local.setDireccion(datos.getDireccion());
+        local.setDistrito(distrito);
+        local.setAforoMaximo(datos.getAforoMaximo());
+        local.setPrecioHora(datos.getPrecioHora());
+        local.setDescripcion(datos.getDescripcion());
+        local.setTiposEvento(tiposEvento);
+
+        if (datos.getUrlsFotos() != null) {
+            fotoLocalRepository.deleteByLocal_IdLocal(id);
+
+            for (String url : datos.getUrlsFotos()) {
+                FotoLocal foto = new FotoLocal();
+                foto.setLocal(local);
+                foto.setUrlFoto(url);
+                fotoLocalRepository.save(foto);
+            }
+        }
+
+        localRepository.save(local);
+        return obtenerDetalle(id);
+    }
+
+    @Transactional
+    public LocalDetalleDTO cambiarEstado(Integer id, Local.EstadoLocal nuevoEstado){
+        Local local = localRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Local no encontrado con ID: " + id));
+
+        local.setEstado(nuevoEstado);
+        localRepository.save(local);
+
+        return obtenerDetalle(id);
+    }
+
+    @Transactional
+    public void eliminar(Integer id){
         if (!localRepository.existsById(id)) {
             throw new RuntimeException("Local no encontrado con ID: " + id);
         }
         localRepository.deleteById(id);
     }
-    
-    public List<Local> findByDistrito(Integer idDistrito) {
-        return localRepository.findByDistrito_IdDistrito(idDistrito);
+
+    /**
+     * Métodos de conversion
+     */
+
+    private LocalCardDTO convertirALocalCardDTO(Local local) {
+        return LocalCardDTO.builder()
+                .idLocal(local.getIdLocal())
+                .nombreLocal(local.getNombreLocal())
+                .distrito(local.getDistrito().getNombreDistrito())
+                .aforoMaximo(local.getAforoMaximo())
+                .precioHora(local.getPrecioHora())
+                .fotoPrincipal(obtenerFotoPrincipal(local))
+                .tiposEvento(local.getTiposEvento().stream()
+                        .map(TipoEvento::getNombreTipo)
+                        .collect(Collectors.toList()))
+                .build();
     }
-    
-    public List<Local> findDisponibles() {
-        return localRepository.findByEstado(Local.EstadoLocal.DISPONIBLE);
+
+    private LocalDetalleDTO convertirALocalDetalleDTO(Local local) {
+        return LocalDetalleDTO.builder()
+                .idLocal(local.getIdLocal())
+                .nombreLocal(local.getNombreLocal())
+                .direccion(local.getDireccion())
+                .distrito(local.getDistrito().getNombreDistrito())
+                .idDistrito(local.getDistrito().getIdDistrito())
+                .aforoMaximo(local.getAforoMaximo())
+                .precioHora(local.getPrecioHora())
+                .descripcion(local.getDescripcion())
+                .estado(local.getEstado())
+                .fotos(local.getFotos().stream()
+                        .map(foto -> FotoLocalDTO.builder()
+                                .idFoto(foto.getIdFoto())
+                                .urlFoto(foto.getUrlFoto())
+                                .descripcion(foto.getDescripcion())
+                                .build())
+                        .collect(Collectors.toList()))
+                .tiposEvento(local.getTiposEvento().stream()
+                        .map(te -> TipoEventoSimpleDTO.builder()
+                                .idTipoEvento(te.getIdTipoEvento())
+                                .nombreTipo(te.getNombreTipo())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
     }
-    
-    public List<Local> findByAforoMinimo(Integer aforo) {
-        return localRepository.findByAforoMinimoRequerido(aforo);
+
+    private LocalAdminListDTO convertirALocalAdminListDTO(Local local) {
+        return LocalAdminListDTO.builder()
+                .idLocal(local.getIdLocal())
+                .nombreLocal(local.getNombreLocal())
+                .distrito(local.getDistrito().getNombreDistrito())
+                .aforoMaximo(local.getAforoMaximo())
+                .precioHora(local.getPrecioHora())
+                .estado(local.getEstado())
+                .build();
     }
-    
-    public List<Local> findByRangoPrecio(BigDecimal precioMin, BigDecimal precioMax) {
-        return localRepository.findByRangoPrecio(precioMin, precioMax);
-    }
-    
-    public List<Local> findByTipoEvento(Integer idTipoEvento) {
-        return localRepository.findByTipoEvento(idTipoEvento);
-    }
-    
-    public List<Local> searchByNombreODescripcion(String termino) {
-        return localRepository.findByNombreOrDescripcionContaining(termino, termino);
-    }
-    
-    public List<Local> findLocalesDisponiblesParaEvento(Integer aforo, Integer idTipoEvento, 
-                                                       BigDecimal presupuestoMaximo) {
-        return localRepository.findAll().stream()
-            .filter(local -> local.getEstado() == Local.EstadoLocal.DISPONIBLE)
-            .filter(local -> local.getAforoMaximo() >= aforo)
-            .filter(local -> presupuestoMaximo == null || local.getPrecioHora().compareTo(presupuestoMaximo) <= 0)
-            .filter(local -> local.getTiposEvento().stream()
-                .anyMatch(tipo -> tipo.getIdTipoEvento().equals(idTipoEvento)))
-            .toList();
+
+    private String obtenerFotoPrincipal(Local local) {
+        return local.getFotos().isEmpty()
+                ? null
+                : local.getFotos().getFirst().getUrlFoto();
     }
 }

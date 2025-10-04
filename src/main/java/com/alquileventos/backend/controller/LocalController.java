@@ -1,107 +1,50 @@
 package com.alquileventos.backend.controller;
 
-import com.alquileventos.backend.entity.Local;
+import com.alquileventos.backend.dto.common.ApiResponseDTO;
+import com.alquileventos.backend.dto.local.LocalCardDTO;
+import com.alquileventos.backend.dto.local.LocalDetalleDTO;
+import com.alquileventos.backend.dto.local.LocalFiltroDTO;
 import com.alquileventos.backend.service.LocalService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/locales")
+@RequestMapping("/api/locales")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class LocalController {
     
     private final LocalService localService;
-    
+
+    //Catálogo
     @GetMapping
-    public ResponseEntity<List<Local>> getAllLocales() {
-        List<Local> locales = localService.findAll();
-        return ResponseEntity.ok(locales);
+    public ResponseEntity<ApiResponseDTO<List<LocalCardDTO>>>listarDisponibles(){
+        List<LocalCardDTO> locales = localService.listarLocalesDisponibles();
+        return ResponseEntity.ok(ApiResponseDTO.success("Locales encontrados", locales));
     }
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<Local> getLocalById(@PathVariable Integer id) {
-        return localService.findById(id)
-            .map(local -> ResponseEntity.ok(local))
-            .orElse(ResponseEntity.notFound().build());
-    }
-    
-    @PostMapping
-    public ResponseEntity<Local> createLocal(@Valid @RequestBody Local local) {
-        Local nuevoLocal = localService.save(local);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoLocal);
-    }
-    
-    @PutMapping("/{id}")
-    public ResponseEntity<Local> updateLocal(@PathVariable Integer id, @Valid @RequestBody Local local) {
-        try {
-            Local localActualizado = localService.update(id, local);
-            return ResponseEntity.ok(localActualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLocal(@PathVariable Integer id) {
-        try {
-            localService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/disponibles")
-    public ResponseEntity<List<Local>> getLocalesDisponibles() {
-        List<Local> locales = localService.findDisponibles();
-        return ResponseEntity.ok(locales);
-    }
-    
-    @GetMapping("/distrito/{idDistrito}")
-    public ResponseEntity<List<Local>> getLocalesByDistrito(@PathVariable Integer idDistrito) {
-        List<Local> locales = localService.findByDistrito(idDistrito);
-        return ResponseEntity.ok(locales);
-    }
-    
-    @GetMapping("/aforo/{aforo}")
-    public ResponseEntity<List<Local>> getLocalesByAforoMinimo(@PathVariable Integer aforo) {
-        List<Local> locales = localService.findByAforoMinimo(aforo);
-        return ResponseEntity.ok(locales);
-    }
-    
-    @GetMapping("/precio")
-    public ResponseEntity<List<Local>> getLocalesByRangoPrecio(
-            @RequestParam BigDecimal min, 
-            @RequestParam BigDecimal max) {
-        List<Local> locales = localService.findByRangoPrecio(min, max);
-        return ResponseEntity.ok(locales);
-    }
-    
-    @GetMapping("/tipo-evento/{idTipoEvento}")
-    public ResponseEntity<List<Local>> getLocalesByTipoEvento(@PathVariable Integer idTipoEvento) {
-        List<Local> locales = localService.findByTipoEvento(idTipoEvento);
-        return ResponseEntity.ok(locales);
-    }
-    
+
+    // filtro flexible
     @GetMapping("/buscar")
-    public ResponseEntity<List<Local>> buscarLocales(@RequestParam String termino) {
-        List<Local> locales = localService.searchByNombreODescripcion(termino);
-        return ResponseEntity.ok(locales);
+    public ResponseEntity<ApiResponseDTO<List<LocalCardDTO>>> buscarFiltroInicio(
+            @RequestParam(required = false) Integer distrito,
+            @RequestParam(required = false) Integer tipoEvento,
+            @RequestParam(required = false) Integer aforoMin,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax
+    ) {
+        LocalFiltroDTO filtros = new LocalFiltroDTO(distrito, tipoEvento, aforoMin, precioMin, precioMax);
+        List<LocalCardDTO> locales = localService.buscarConFiltros(filtros);
+        return ResponseEntity.ok(ApiResponseDTO.success("Búsqueda completada", locales));
     }
-    
-    @GetMapping("/filtrar")
-    public ResponseEntity<List<Local>> filtrarLocalesParaEvento(
-            @RequestParam Integer aforo,
-            @RequestParam Integer idTipoEvento,
-            @RequestParam(required = false) BigDecimal presupuestoMaximo) {
-        List<Local> locales = localService.findLocalesDisponiblesParaEvento(aforo, idTipoEvento, presupuestoMaximo);
-        return ResponseEntity.ok(locales);
+
+    // Detalle de local
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponseDTO<LocalDetalleDTO>> obtenerDetalle(
+            @PathVariable Integer id) {
+        LocalDetalleDTO localDetalle = localService.obtenerDetalle(id);
+        return ResponseEntity.ok(ApiResponseDTO.success("Detalle encontrado", localDetalle));
     }
 }

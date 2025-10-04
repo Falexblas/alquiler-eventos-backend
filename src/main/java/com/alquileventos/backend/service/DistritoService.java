@@ -16,7 +16,7 @@ public class DistritoService {
     
     private final DistritoRepository distritoRepository;
     
-    public List<Distrito> findAll() {
+    public List<Distrito> listarTodos() {
         return distritoRepository.findAll();
     }
     

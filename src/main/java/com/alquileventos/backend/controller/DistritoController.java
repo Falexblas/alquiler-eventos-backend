@@ -1,5 +1,6 @@
 package com.alquileventos.backend.controller;
 
+import com.alquileventos.backend.dto.common.ApiResponseDTO;
 import com.alquileventos.backend.entity.Distrito;
 import com.alquileventos.backend.service.DistritoService;
 import lombok.RequiredArgsConstructor;
@@ -11,23 +12,22 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/distritos")
+@RequestMapping("/api/distritos")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class DistritoController {
     
     private final DistritoService distritoService;
     
     @GetMapping
-    public ResponseEntity<List<Distrito>> getAllDistritos() {
-        List<Distrito> distritos = distritoService.findAll();
-        return ResponseEntity.ok(distritos);
+    public ResponseEntity<ApiResponseDTO<List<Distrito>>> listarDistritos() {
+        List<Distrito> distritos = distritoService.listarTodos();
+        return ResponseEntity.ok(ApiResponseDTO.success("Distritos encontrados", distritos));
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<Distrito> getDistritoById(@PathVariable Integer id) {
         return distritoService.findById(id)
-            .map(distrito -> ResponseEntity.ok(distrito))
+            .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
     
@@ -64,7 +64,7 @@ public class DistritoController {
     @GetMapping("/nombre/{nombre}")
     public ResponseEntity<Distrito> getDistritoByNombre(@PathVariable String nombre) {
         return distritoService.findByNombre(nombre)
-            .map(distrito -> ResponseEntity.ok(distrito))
+            .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
 }

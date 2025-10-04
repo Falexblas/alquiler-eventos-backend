@@ -19,6 +19,7 @@ public class UsuarioController {
     
     private final UsuarioService usuarioService;
 
+    //actualizar perfil
     @PutMapping("/me")
     public ResponseEntity<ApiResponseDTO<UsuarioPerfilDTO>> actualizarMiPerfil(
             @AuthenticationPrincipal CustomUserPrincipal userPrincipal,
@@ -30,6 +31,7 @@ public class UsuarioController {
         return ResponseEntity.ok(ApiResponseDTO.success("Datos actualizados correctamente", perfilActualizado));
     }
 
+    //mostrar perfil
     @GetMapping("/me")
     public ResponseEntity<ApiResponseDTO<UsuarioPerfilDTO>> obtenerMiPerfil(
             @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {

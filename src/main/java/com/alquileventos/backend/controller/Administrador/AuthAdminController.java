@@ -1,4 +1,4 @@
-package com.alquileventos.backend.controller;
+package com.alquileventos.backend.controller.Administrador;
 
 import com.alquileventos.backend.dto.auth.AdminLoginRequestDTO;
 import com.alquileventos.backend.dto.auth.AuthResponseDTO;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin/auth")
 @RequiredArgsConstructor
-public class AdminAuthController {
+public class AuthAdminController {
 
     private final AuthService authService;
 

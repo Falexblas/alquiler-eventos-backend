@@ -13,11 +13,13 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     Optional<Usuario> findByEmail(String email);
-    
+
     boolean existsByEmail(String email);
     boolean existsByDni(String dni);
 
     List<Usuario> findByRol_IdRol(Integer idRol);
-    @Query("SELECT u FROM Usuario u WHERE u.nombre LIKE %:nombre% OR u.apellido LIKE %:apellido%")
-    List<Usuario> findByNombreOrApellidoContaining(@Param("nombre") String nombre, @Param("apellido") String apellido);
+    @Query("SELECT u FROM Usuario u " +
+            "WHERE LOWER(u.nombre) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(u.apellido) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Usuario> findByNombreOApellido(@Param("keyword") String keyword);
 }

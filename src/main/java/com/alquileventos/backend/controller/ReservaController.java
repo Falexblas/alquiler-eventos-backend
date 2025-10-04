@@ -14,23 +14,18 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reservas")
+@RequestMapping("/api/reservas")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class ReservaController {
     
     private final ReservaService reservaService;
-    
-    @GetMapping
-    public ResponseEntity<List<Reserva>> getAllReservas() {
-        List<Reserva> reservas = reservaService.findAll();
-        return ResponseEntity.ok(reservas);
-    }
+
+
     
     @GetMapping("/{id}")
     public ResponseEntity<Reserva> getReservaById(@PathVariable Integer id) {
         return reservaService.findById(id)
-            .map(reserva -> ResponseEntity.ok(reserva))
+            .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
     

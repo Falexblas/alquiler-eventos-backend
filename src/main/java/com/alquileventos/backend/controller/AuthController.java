@@ -19,13 +19,15 @@ public class AuthController {
 
     private final AuthService authService;
 
+    // inciar sesion
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDTO<AuthResponseDTO>> login(
             @Valid @RequestBody LoginRequest loginRequest) {
         AuthResponseDTO response = authService.login(loginRequest);
         return ResponseEntity.ok(ApiResponseDTO.success("Inicio de sesión exitoso", response));
     }
-    
+
+    // registrar
     @PostMapping("/register")
     public ResponseEntity<ApiResponseDTO<AuthResponseDTO>> register(
             @Valid @RequestBody RegisterRequest registerRequest) {
