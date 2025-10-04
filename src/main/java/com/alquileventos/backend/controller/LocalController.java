@@ -28,7 +28,7 @@ public class LocalController {
 
     // filtro flexible
     @GetMapping("/buscar")
-    public ResponseEntity<ApiResponseDTO<List<LocalCardDTO>>> buscarFiltroInicio(
+    public ResponseEntity<ApiResponseDTO<List<LocalCardDTO>>> buscarConFiltros(
             @RequestParam(required = false) Integer distrito,
             @RequestParam(required = false) Integer tipoEvento,
             @RequestParam(required = false) Integer aforoMin,
