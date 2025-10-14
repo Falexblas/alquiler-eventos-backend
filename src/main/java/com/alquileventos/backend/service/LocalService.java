@@ -1,6 +1,6 @@
 package com.alquileventos.backend.service;
 
-import com.alquileventos.backend.dto.common.TipoEventoSimpleDTO;
+import com.alquileventos.backend.dto.common.TipoEventoDTO;
 import com.alquileventos.backend.dto.local.*;
 import com.alquileventos.backend.entity.*;
 import com.alquileventos.backend.exception.ResourceNotFoundException;
@@ -175,7 +175,7 @@ public class LocalService {
                 .distrito(local.getDistrito().getNombreDistrito())
                 .aforoMaximo(local.getAforoMaximo())
                 .precioHora(local.getPrecioHora())
-               .fotoPrincipal()
+               .fotoPrincipal(obtenerFotoPrincipal(local))
                 .tiposEvento(local.getTiposEvento().stream()
                         .map(TipoEvento::getNombreTipo)
                         .collect(Collectors.toList()))
@@ -201,7 +201,7 @@ public class LocalService {
                                 .build())
                         .collect(Collectors.toList()))
                 .tiposEvento(local.getTiposEvento().stream()
-                        .map(te -> TipoEventoSimpleDTO.builder()
+                        .map(te -> TipoEventoDTO.builder()
                                 .idTipoEvento(te.getIdTipoEvento())
                                 .nombreTipo(te.getNombreTipo())
                                 .build())

@@ -1,15 +1,21 @@
 package com.alquileventos.backend.dto.reserva;
 
-import com.alquileventos.backend.dto.mobiliario.MobiliarioResumenDTO;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
-import java.util.List;
 
+// Presupuesto en detalle de local
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PresupuestoDTO {
-    private BigDecimal costoLocalPorHora;
+    private BigDecimal precioHora;
     private BigDecimal totalHoras;
-    private BigDecimal subtotalLocal;
-    private List<MobiliarioResumenDTO> mobiliariosSeleccionados;
-    private BigDecimal subtotalMobiliario;
-    private BigDecimal totalEstimado;
+    private BigDecimal costoLocal;
+    private BigDecimal costoMobiliario;
+    private BigDecimal costoTotal;
 }

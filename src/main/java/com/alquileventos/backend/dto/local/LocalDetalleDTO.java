@@ -1,6 +1,6 @@
 package com.alquileventos.backend.dto.local;
 
-import com.alquileventos.backend.dto.common.TipoEventoSimpleDTO;
+import com.alquileventos.backend.dto.common.TipoEventoDTO;
 import com.alquileventos.backend.entity.Local;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +25,6 @@ public class LocalDetalleDTO {
     private String descripcion;
     private Local.EstadoLocal estado;
     private List<FotoLocalDTO> fotos;
-    private List<TipoEventoSimpleDTO> tiposEvento;
+    private List<TipoEventoDTO> tiposEvento;
 }
 

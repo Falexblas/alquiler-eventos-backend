@@ -1,33 +1,35 @@
 package com.alquileventos.backend.dto.reserva;
 
-import com.alquileventos.backend.dto.mobiliario.MobiliarioDetalleDTO;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
+
+// Paso 1 para reserva de local
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CrearReservaDTO {
-    @NotNull
+    @NotNull(message = "El ID del local es obligatorio")
     private Integer idLocal;
 
-    @NotNull
+    @NotNull(message = "El tipo de evento es obligatorio")
     private Integer idTipoEvento;
 
-    @NotNull
+    @NotNull(message = "La fecha es obligatoria")
+    @FutureOrPresent(message = "La fecha debe ser hoy o futura")
     private LocalDate fecha;
 
-    @NotNull
+    @NotNull(message = "La hora de inicio es obligatoria")
     private LocalTime horaInicio;
 
-    @NotNull
+    @NotNull(message = "La hora de fin es obligatoria")
     private LocalTime horaFin;
 
-    @NotNull
-    @Min(1)
+    @NotNull(message = "La cantidad de personas es obligatoria")
+    @Min(value = 1, message = "Debe haber al menos 1 persona")
     private Integer cantidadPersonas;
-
-    private List<MobiliarioDetalleDTO> mobiliarioSeleccionado;
 }

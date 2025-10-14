@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TipoEventoSimpleDTO {
+public class TipoEventoDTO {
     private Integer idTipoEvento;
     private String nombreTipo;
     private String descripcionTipo;

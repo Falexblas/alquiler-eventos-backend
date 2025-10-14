@@ -7,21 +7,22 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-// Lista de reservas
+//Mis reservas
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservaAdminListDTO {
+public class ReservaUsuarioListDTO {
     private Integer idReserva;
-    private LocalDate fecha;
     private String nombreLocal;
-    private String nombreCliente;
-    private String celularCliente;
-    private String emailCliente;
+    private String distrito;
+    private LocalDate fecha;
+    private String tipoEvento;
     private BigDecimal costoTotal;
     private String estado;
-    private LocalDate fechaReserva;
+    private LocalDateTime fechaReserva;
 }
+
