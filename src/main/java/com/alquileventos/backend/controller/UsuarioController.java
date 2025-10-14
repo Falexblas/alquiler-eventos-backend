@@ -2,6 +2,7 @@ package com.alquileventos.backend.controller;
 
 import com.alquileventos.backend.dto.common.ApiResponseDTO;
 import com.alquileventos.backend.dto.usuario.ActualizarDatosDTO;
+import com.alquileventos.backend.dto.usuario.CambiarContrasenaDTO;
 import com.alquileventos.backend.dto.usuario.UsuarioPerfilDTO;
 import com.alquileventos.backend.security.CustomUserPrincipal;
 import com.alquileventos.backend.service.UsuarioService;
@@ -37,5 +38,14 @@ public class UsuarioController {
             @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
         UsuarioPerfilDTO perfil = usuarioService.obtenerPerfil(userPrincipal.getId());
         return ResponseEntity.ok(ApiResponseDTO.success("Perfil obtenido correctamente", perfil));
+    }
+
+    //cambiar contrasena desde perfil
+    @PutMapping("/me/cambiar-contrasena")
+    public ResponseEntity<ApiResponseDTO<Void>> cambiarContrasena(
+            @AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+            @Valid @RequestBody CambiarContrasenaDTO datos) {
+        usuarioService.cambiarContrasena(userPrincipal.getId(), datos);
+        return ResponseEntity.ok(ApiResponseDTO.success("Contraseña actualizada correctamente", null));
     }
 }
