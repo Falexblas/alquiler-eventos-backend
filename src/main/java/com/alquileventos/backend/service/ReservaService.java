@@ -29,13 +29,12 @@ public class ReservaService {
     }
     
     public Reserva save(Reserva reserva) {
-        // Validar disponibilidad antes de guardar
+
         if (!isLocalDisponible(reserva.getLocal().getIdLocal(), reserva.getFecha(), 
                               reserva.getHoraInicio(), reserva.getHoraFin())) {
             throw new RuntimeException("El local no está disponible en el horario solicitado");
         }
-        
-        // Calcular costo total
+
         reserva.setCostoTotal(calcularCostoTotal(reserva));
         
         return reservaRepository.save(reserva);

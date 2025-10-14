@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-public class ActualizarLocalDTO {
+public class CrearLocalAdminDTO {
 
     @NotBlank(message = "El nombre del local es obligatorio")
     @Size(max = 150, message = "Máximo 150 caracteres")

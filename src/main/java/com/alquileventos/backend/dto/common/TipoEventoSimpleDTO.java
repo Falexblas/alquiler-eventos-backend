@@ -1,4 +1,4 @@
-package com.alquileventos.backend.dto.local;
+package com.alquileventos.backend.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class TipoEventoSimpleDTO {
     private Integer idTipoEvento;
     private String nombreTipo;
+    private String descripcionTipo;
 }

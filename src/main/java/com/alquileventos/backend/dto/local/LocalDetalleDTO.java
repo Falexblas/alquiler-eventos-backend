@@ -1,5 +1,6 @@
 package com.alquileventos.backend.dto.local;
 
+import com.alquileventos.backend.dto.common.TipoEventoSimpleDTO;
 import com.alquileventos.backend.entity.Local;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

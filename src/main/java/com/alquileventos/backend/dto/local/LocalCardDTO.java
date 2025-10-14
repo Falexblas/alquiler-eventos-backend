@@ -18,6 +18,5 @@ public class LocalCardDTO {
     private String distrito;
     private Integer aforoMaximo;
     private BigDecimal precioHora;
-    private String fotoPrincipal;
-    private List<String> tiposEvento;
+    private FotoLocalDTO fotoPrincipal;
 }

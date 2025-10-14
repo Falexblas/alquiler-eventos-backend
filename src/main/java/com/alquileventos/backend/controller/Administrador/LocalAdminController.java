@@ -38,7 +38,7 @@ public class LocalAdminController {
     //Crear
     @PostMapping
     public ResponseEntity<ApiResponseDTO<LocalDetalleDTO>> crear(
-            @Valid @RequestBody CrearLocalDTO datos) {
+            @Valid @RequestBody CrearLocalAdminDTO datos) {
         LocalDetalleDTO nuevoLocal = localService.crear(datos);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponseDTO.success("Local creado exitosamente.", nuevoLocal));
@@ -48,7 +48,7 @@ public class LocalAdminController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponseDTO<LocalDetalleDTO>> actualizar(
             @PathVariable Integer id,
-            @Valid @RequestBody ActualizarLocalDTO datos) {
+            @Valid @RequestBody ActualizarLocalAdminDTO datos) {
         LocalDetalleDTO localActualizado = localService.actualizar(id, datos);
         return ResponseEntity.ok(ApiResponseDTO.success("Local actualizado correctamente", localActualizado));
     }

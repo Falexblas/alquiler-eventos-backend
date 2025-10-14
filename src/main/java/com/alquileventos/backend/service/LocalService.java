@@ -1,5 +1,6 @@
 package com.alquileventos.backend.service;
 
+import com.alquileventos.backend.dto.common.TipoEventoSimpleDTO;
 import com.alquileventos.backend.dto.local.*;
 import com.alquileventos.backend.entity.*;
 import com.alquileventos.backend.exception.ResourceNotFoundException;
@@ -74,7 +75,7 @@ public class LocalService {
     }
 
     @Transactional
-    public LocalDetalleDTO crear(CrearLocalDTO datos){
+    public LocalDetalleDTO crear(CrearLocalAdminDTO datos){
 
         Distrito distrito = distritoRepository.findById(datos.getIdDistrito())
                 .orElseThrow(() -> new ResourceNotFoundException("Distrito no encontrado"));
@@ -109,7 +110,7 @@ public class LocalService {
     }
 
     @Transactional
-    public LocalDetalleDTO actualizar(Integer id, ActualizarLocalDTO datos){
+    public LocalDetalleDTO actualizar(Integer id, ActualizarLocalAdminDTO datos){
         Local local = localRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Local no encontrado con ID: " + id));
 
@@ -174,7 +175,7 @@ public class LocalService {
                 .distrito(local.getDistrito().getNombreDistrito())
                 .aforoMaximo(local.getAforoMaximo())
                 .precioHora(local.getPrecioHora())
-                .fotoPrincipal(obtenerFotoPrincipal(local))
+               .fotoPrincipal()
                 .tiposEvento(local.getTiposEvento().stream()
                         .map(TipoEvento::getNombreTipo)
                         .collect(Collectors.toList()))
