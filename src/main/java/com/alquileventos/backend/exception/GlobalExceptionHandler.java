@@ -56,6 +56,27 @@ public class GlobalExceptionHandler {
                 .body(ApiResponseDTO.error("Email o contraseña incorrectos"));
     }
 
+    @ExceptionHandler(LocalNoDisponibleException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleLocalNoDisponible(
+            LocalNoDisponibleException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponseDTO.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleInvalidOperation(
+            InvalidOperationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponseDTO.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleStockInsuficiente(
+            StockInsuficienteException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponseDTO.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDTO<Void>> handleGenericException(Exception ex) {
         ex.printStackTrace();

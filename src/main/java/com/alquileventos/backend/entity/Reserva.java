@@ -33,7 +33,13 @@ public class Reserva {
     @Column(name = "cantidad_personas", nullable = false)
     private Integer cantidadPersonas;
     
-    @Column(name = "costo_total", nullable = false, precision = 12, scale = 2)
+    @Column(name = "costo_local", nullable = false, precision = 10, scale = 2)
+    private BigDecimal costoLocal;
+    
+    @Column(name = "costo_mobiliario", precision = 10, scale = 2)
+    private BigDecimal costoMobiliario = BigDecimal.ZERO;
+    
+    @Column(name = "costo_total", precision = 12, scale = 2, insertable = false, updatable = false)
     private BigDecimal costoTotal;
     
     @Enumerated(EnumType.STRING)

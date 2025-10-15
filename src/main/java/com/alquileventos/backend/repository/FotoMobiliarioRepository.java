@@ -1,0 +1,15 @@
+package com.alquileventos.backend.repository;
+
+import com.alquileventos.backend.entity.FotoMobiliario;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface FotoMobiliarioRepository extends JpaRepository<FotoMobiliario, Integer> {
+    
+    List<FotoMobiliario> findByMobiliario_IdMobiliario(Integer idMobiliario);
+    
+    void deleteByMobiliario_IdMobiliario(Integer idMobiliario);
+}

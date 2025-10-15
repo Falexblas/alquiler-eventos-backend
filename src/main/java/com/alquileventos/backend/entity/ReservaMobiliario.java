@@ -23,6 +23,9 @@ public class ReservaMobiliario {
     @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
     
+    @Column(name = "subtotal", precision = 10, scale = 2, insertable = false, updatable = false)
+    private BigDecimal subtotal;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("idReserva")
     @JoinColumn(name = "id_reserva")

@@ -31,32 +31,20 @@ public class ReservaController {
     
     @PostMapping
     public ResponseEntity<Reserva> createReserva(@Valid @RequestBody Reserva reserva) {
-        try {
-            Reserva nuevaReserva = reservaService.save(reserva);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReserva);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Reserva nuevaReserva = reservaService.save(reserva);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReserva);
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<Reserva> updateReserva(@PathVariable Integer id, @Valid @RequestBody Reserva reserva) {
-        try {
-            Reserva reservaActualizada = reservaService.update(id, reserva);
-            return ResponseEntity.ok(reservaActualizada);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Reserva reservaActualizada = reservaService.update(id, reserva);
+        return ResponseEntity.ok(reservaActualizada);
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReserva(@PathVariable Integer id) {
-        try {
-            reservaService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        reservaService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/usuario/{idUsuario}")
@@ -104,21 +92,13 @@ public class ReservaController {
     
     @PutMapping("/{id}/confirmar")
     public ResponseEntity<Reserva> confirmarReserva(@PathVariable Integer id) {
-        try {
-            Reserva reservaConfirmada = reservaService.confirmarReserva(id);
-            return ResponseEntity.ok(reservaConfirmada);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Reserva reservaConfirmada = reservaService.confirmarReserva(id);
+        return ResponseEntity.ok(reservaConfirmada);
     }
     
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<Reserva> cancelarReserva(@PathVariable Integer id) {
-        try {
-            Reserva reservaCancelada = reservaService.cancelarReserva(id);
-            return ResponseEntity.ok(reservaCancelada);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Reserva reservaCancelada = reservaService.cancelarReserva(id);
+        return ResponseEntity.ok(reservaCancelada);
     }
 }

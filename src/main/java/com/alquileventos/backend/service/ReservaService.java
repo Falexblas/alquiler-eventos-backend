@@ -1,6 +1,8 @@
 package com.alquileventos.backend.service;
 
 import com.alquileventos.backend.entity.Reserva;
+import com.alquileventos.backend.exception.LocalNoDisponibleException;
+import com.alquileventos.backend.exception.ResourceNotFoundException;
 import com.alquileventos.backend.repository.ReservaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,11 +34,11 @@ public class ReservaService {
         // Validar disponibilidad antes de guardar
         if (!isLocalDisponible(reserva.getLocal().getIdLocal(), reserva.getFecha(), 
                               reserva.getHoraInicio(), reserva.getHoraFin())) {
-            throw new RuntimeException("El local no está disponible en el horario solicitado");
+            throw new LocalNoDisponibleException("El local no está disponible en el horario solicitado");
         }
         
-        // Calcular costo total
-        reserva.setCostoTotal(calcularCostoTotal(reserva));
+        // Calcular costos
+        calcularYAsignarCostos(reserva);
         
         return reservaRepository.save(reserva);
     }
@@ -54,7 +56,7 @@ public class ReservaService {
                                          reservaActualizada.getFecha(),
                                          reservaActualizada.getHoraInicio(), 
                                          reservaActualizada.getHoraFin(), id)) {
-                        throw new RuntimeException("El local no está disponible en el nuevo horario solicitado");
+                        throw new LocalNoDisponibleException("El local no está disponible en el nuevo horario solicitado");
                     }
                 }
                 
@@ -72,17 +74,17 @@ public class ReservaService {
                     reserva.setTipoEvento(reservaActualizada.getTipoEvento());
                 }
                 
-                // Recalcular costo total
-                reserva.setCostoTotal(calcularCostoTotal(reserva));
+                // Recalcular costos
+                calcularYAsignarCostos(reserva);
                 
                 return reservaRepository.save(reserva);
             })
-            .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con ID: " + id));
     }
     
     public void deleteById(Integer id) {
         if (!reservaRepository.existsById(id)) {
-            throw new RuntimeException("Reserva no encontrada con ID: " + id);
+            throw new ResourceNotFoundException("Reserva no encontrada con ID: " + id);
         }
         reservaRepository.deleteById(id);
     }
@@ -131,7 +133,7 @@ public class ReservaService {
                 reserva.setEstado(Reserva.EstadoReserva.CONFIRMADA);
                 return reservaRepository.save(reserva);
             })
-            .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con ID: " + id));
     }
     
     public Reserva cancelarReserva(Integer id) {
@@ -140,25 +142,27 @@ public class ReservaService {
                 reserva.setEstado(Reserva.EstadoReserva.CANCELADA);
                 return reservaRepository.save(reserva);
             })
-            .orElseThrow(() -> new RuntimeException("Reserva no encontrada con ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con ID: " + id));
     }
     
-    private BigDecimal calcularCostoTotal(Reserva reserva) {
+    private void calcularYAsignarCostos(Reserva reserva) {
         // Calcular horas de duración
         Duration duracion = Duration.between(reserva.getHoraInicio(), reserva.getHoraFin());
         long horas = duracion.toHours();
         
-        // Costo base del local
+        // Costo del local
         BigDecimal costoLocal = reserva.getLocal().getPrecioHora().multiply(BigDecimal.valueOf(horas));
+        reserva.setCostoLocal(costoLocal);
         
-        // Agregar costo del mobiliario si existe
+        // Calcular costo del mobiliario si existe
         BigDecimal costoMobiliario = BigDecimal.ZERO;
-        if (reserva.getMobiliario() != null) {
+        if (reserva.getMobiliario() != null && !reserva.getMobiliario().isEmpty()) {
             costoMobiliario = reserva.getMobiliario().stream()
                 .map(rm -> rm.getPrecioUnitario().multiply(BigDecimal.valueOf(rm.getCantidad())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
+        reserva.setCostoMobiliario(costoMobiliario);
         
-        return costoLocal.add(costoMobiliario);
+        // El costo_total se calcula automáticamente en la BD como campo GENERATED
     }
 }

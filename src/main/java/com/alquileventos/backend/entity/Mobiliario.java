@@ -33,5 +33,8 @@ public class Mobiliario {
     private BigDecimal precioUnitario;
     
     @OneToMany(mappedBy = "mobiliario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<FotoMobiliario> fotos;
+    
+    @OneToMany(mappedBy = "mobiliario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReservaMobiliario> reservasMobiliario;
 }

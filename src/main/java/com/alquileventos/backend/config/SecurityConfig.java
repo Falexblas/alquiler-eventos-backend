@@ -1,6 +1,5 @@
 package com.alquileventos.backend.config;
 
-import com.alquileventos.backend.security.CustomUserDetailsService;
 import com.alquileventos.backend.security.JwtAuthenticationEntryPoint;
 import com.alquileventos.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;

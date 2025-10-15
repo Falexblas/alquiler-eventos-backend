@@ -29,10 +29,13 @@ public class Pago {
     @Column(name = "estado")
     private EstadoPago estado = EstadoPago.PENDIENTE;
     
+    @Column(name = "codigo_confirmacion", length = 50)
+    private String codigoConfirmacion;
+    
     @Column(name = "fecha_pago")
     private LocalDateTime fechaPago;
     
-    @Column(name = "comprobante_url")
+    @Column(name = "comprobante_url", length = 255)
     private String comprobanteUrl;
     
     @ManyToOne(fetch = FetchType.LAZY)

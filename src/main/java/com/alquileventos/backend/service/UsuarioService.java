@@ -9,7 +9,6 @@ import com.alquileventos.backend.exception.DuplicateResourceException;
 import com.alquileventos.backend.exception.ResourceNotFoundException;
 import com.alquileventos.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
 
     /**
      * Cliente
