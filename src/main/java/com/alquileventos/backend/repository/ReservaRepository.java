@@ -26,12 +26,35 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
            "OR (r.horaInicio < :horaFin AND r.horaFin >= :horaFin) " +
            "OR (r.horaInicio >= :horaInicio AND r.horaFin <= :horaFin)) " +
            "AND r.estado != 'CANCELADA'")
-    List<Reserva> findConflictingReservations(@Param("idLocal") Integer idLocal, 
+    List<Reserva> findConflictingReservations(@Param("idLocal") Integer idLocal,
                                             @Param("fecha") LocalDate fecha,
                                             @Param("horaInicio") LocalTime horaInicio, 
                                             @Param("horaFin") LocalTime horaFin);
-    
+
     @Query("SELECT r FROM Reserva r WHERE r.fecha BETWEEN :fechaInicio AND :fechaFin")
     List<Reserva> findByRangoFechas(@Param("fechaInicio") LocalDate fechaInicio, 
                                    @Param("fechaFin") LocalDate fechaFin);
+
+    // disponibilidad con 1 hora pre y post horario reservado
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN false ELSE true END " +
+            "FROM Reserva r " +
+            "WHERE r.local.idLocal = :idLocal " +
+            "AND r.fecha = :fecha " +
+            "AND r.estado IN ('PENDIENTE', 'CONFIRMADA') " +
+            "AND (" +
+            "(:horaInicio >= SUBTIME(r.horaInicio, '01:00:00') AND :horaInicio < ADDTIME(r.horaFin, '01:00:00')) " +
+            "OR " +
+            "(:horaFin > SUBTIME(r.horaInicio, '01:00:00') AND :horaFin <= ADDTIME(r.horaFin, '01:00:00')) " +
+            "OR " +
+            "(:horaInicio <= SUBTIME(r.horaInicio, '01:00:00') AND :horaFin >= ADDTIME(r.horaFin, '01:00:00'))" +
+            ")")
+    boolean estaDisponible(
+            @Param("idLocal") Integer idLocal,
+            @Param("fecha") LocalDate fecha,
+            @Param("horaInicio") LocalTime horaInicio,
+            @Param("horaFin") LocalTime horaFin
+    );
+
+    List<Reserva> findByUsuario_IdUsuarioOrderByFechaReservaDesc(Integer idUsuario);
+
 }

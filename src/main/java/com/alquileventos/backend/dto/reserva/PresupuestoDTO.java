@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PresupuestoDTO {
     private BigDecimal precioHora;
-    private BigDecimal totalHoras;
+    private Integer totalHoras;
     private BigDecimal costoLocal;
     private BigDecimal costoMobiliario;
     private BigDecimal costoTotal;

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservaUsuarioListDTO {
+public class ReservaResumenDTO {
     private Integer idReserva;
     private String nombreLocal;
     private String distrito;

@@ -1,7 +1,15 @@
 package com.alquileventos.backend.service;
 
+import com.alquileventos.backend.dto.reserva.*;
+import com.alquileventos.backend.entity.Local;
 import com.alquileventos.backend.entity.Reserva;
+import com.alquileventos.backend.entity.TipoEvento;
+import com.alquileventos.backend.entity.Usuario;
+import com.alquileventos.backend.exception.ResourceNotFoundException;
+import com.alquileventos.backend.repository.LocalRepository;
 import com.alquileventos.backend.repository.ReservaRepository;
+import com.alquileventos.backend.repository.TipoEventoRepository;
+import com.alquileventos.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +29,160 @@ import java.util.Optional;
 public class ReservaService {
     
     private final ReservaRepository reservaRepository;
-    
+    private final LocalRepository localRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final TipoEventoRepository tipoEventoRepository;
+
+    @Transactional(readOnly = true)
+    public DisponibilidadDTO verificarDisponibilidad(
+            Integer idLocal,
+            LocalDate fecha,
+            LocalTime horaInicio,
+            LocalTime horaFin) {
+
+        boolean disponible = reservaRepository.estaDisponible(idLocal, fecha, horaInicio, horaFin);
+
+        String mensaje = disponible
+                ? "Local disponible para las fechas seleccionadas"
+                : "Local no disponible. Hay otra reserva en ese horario (incluye 1h de limpieza antes/después)";
+
+        return DisponibilidadDTO.builder()
+                .disponible(disponible)
+                .mensaje(mensaje)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public PresupuestoDTO calcularPresupuesto(CrearReservaDTO datos) {
+        Local local = localRepository.findById(datos.getIdLocal())
+                .orElseThrow(() -> new ResourceNotFoundException("Local no encontrado"));
+
+        int totalHoras = calcularTotalHoras(datos.getHoraInicio(), datos.getHoraFin());
+        BigDecimal costoLocal = calcularCostoLocal(local.getPrecioHora(), totalHoras);
+
+        return PresupuestoDTO.builder()
+                .precioHora(local.getPrecioHora())
+                .totalHoras(totalHoras)
+                .costoLocal(costoLocal)
+                .costoMobiliario(BigDecimal.ZERO)
+                .costoTotal(costoLocal)
+                .build();
+    }
+
+    @Transactional
+    public ReservaDetalleDTO crearReserva(CrearReservaDTO datos, Integer idUsuario) {
+
+        Local local = localRepository.findById(datos.getIdLocal())
+                .orElseThrow(() -> new ResourceNotFoundException("Local no encontrado"));
+
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        TipoEvento tipoEvento = tipoEventoRepository.findById(datos.getIdTipoEvento())
+                .orElseThrow(() -> new ResourceNotFoundException("Tipo de evento no encontrado"));
+
+        validarReserva(datos, local);
+
+        int totalHoras = calcularTotalHoras(datos.getHoraInicio(), datos.getHoraFin());
+        BigDecimal costoLocal = calcularCostoLocal(local.getPrecioHora(), totalHoras);
+
+        Reserva reserva = new Reserva();
+        reserva.setUsuario(usuario);
+        reserva.setLocal(local);
+        reserva.setTipoEvento(tipoEvento);
+        reserva.setFecha(datos.getFecha());
+        reserva.setHoraInicio(datos.getHoraInicio());
+        reserva.setHoraFin(datos.getHoraFin());
+        reserva.setCantidadPersonas(datos.getCantidadPersonas());
+        reserva.setCostoLocal(costoLocal);
+        reserva.setCostoMobiliario(BigDecimal.ZERO);
+        reserva.setCostoTotal(costoLocal);
+        reserva.setEstado(Reserva.EstadoReserva.PENDIENTE);
+        reserva.setFechaReserva(LocalDateTime.now());
+
+        Reserva reservaGuardada = reservaRepository.save(reserva);
+
+        return convertirAReservaDetalleDTO(reservaGuardada);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResumenDTO> obtenerMisReservas(Integer idUsuario) {
+        List<Reserva> reservas = reservaRepository.findByUsuario_IdUsuarioOrderByFechaReservaDesc(idUsuario);
+        return reservas.stream()
+                .map(this::convertirAReservaResumenDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Metodos privados
+
+    private int calcularTotalHoras(LocalTime inicio, LocalTime fin) {
+        long minutos = Duration.between(inicio, fin).toMinutes();
+        return (int) Math.ceil(minutos / 60.0);
+    }
+
+    private BigDecimal calcularCostoLocal(BigDecimal precioHora, int totalHoras) {
+        return precioHora.multiply(BigDecimal.valueOf(totalHoras));
+    }
+
+    private void validarReserva(CrearReservaDTO datos, Local local) {
+        if (datos.getCantidadPersonas() > local.getAforoMaximo()) {
+            throw new IllegalArgumentException("La cantidad de personas excede el aforo máximo (" + local.getAforoMaximo() + ")");
+        }
+
+        boolean disponible = reservaRepository.estaDisponible(
+                datos.getIdLocal(), datos.getFecha(),
+                datos.getHoraInicio(), datos.getHoraFin());
+
+        if (!disponible) {
+            throw new IllegalStateException("El local no está disponible en ese horario");
+        }
+    }
+
+    private ReservaDetalleDTO convertirAReservaDetalleDTO(Reserva reserva) {
+        long minutos = Duration.between(reserva.getHoraInicio(), reserva.getHoraFin()).toMinutes();
+        int totalHoras = (int) Math.ceil(minutos / 60.0);
+
+        return ReservaDetalleDTO.builder()
+                .idReserva(reserva.getIdReserva())
+                .idLocal(reserva.getLocal().getIdLocal())
+                .nombreLocal(reserva.getLocal().getNombreLocal())
+                .distrito(reserva.getLocal().getDistrito().getNombreDistrito())
+                .direccion(reserva.getLocal().getDireccion())
+                .fotoPrincipal(reserva.getLocal().getFotos().isEmpty()
+                        ? null : reserva.getLocal().getFotos().get(0).getUrlFoto())
+                .tipoEvento(reserva.getTipoEvento().getNombreTipo())
+                .fecha(reserva.getFecha())
+                .horaInicio(reserva.getHoraInicio())
+                .horaFin(reserva.getHoraFin())
+                .totalHoras(totalHoras)
+                .cantidadPersonas(reserva.getCantidadPersonas())
+                .nombreCliente(reserva.getUsuario().getNombre())
+                .apellidoCliente(reserva.getUsuario().getApellido())
+                .emailCliente(reserva.getUsuario().getEmail())
+                .costoLocal(reserva.getCostoLocal())
+                .costoMobiliario(reserva.getCostoMobiliario())
+                .costoTotal(reserva.getCostoTotal())
+                .estado(reserva.getEstado().name())
+                .fechaReserva(reserva.getFechaReserva())
+                .build();
+    }
+
+    private ReservaResumenDTO convertirAReservaResumenDTO(Reserva reserva) {
+        return ReservaResumenDTO.builder()
+                .idReserva(reserva.getIdReserva())
+                .nombreLocal(reserva.getLocal().getNombreLocal())
+                .distrito(reserva.getLocal().getDistrito().getNombreDistrito())
+                .fecha(reserva.getFecha())
+                .tipoEvento(reserva.getTipoEvento().getNombreTipo())
+                .costoTotal(reserva.getCostoTotal())
+                .estado(reserva.getEstado().name())
+                .fechaReserva(reserva.getFechaReserva())
+                .build();
+    }
+
+
+
+
     public List<Reserva> findAll() {
         return reservaRepository.findAll();
     }

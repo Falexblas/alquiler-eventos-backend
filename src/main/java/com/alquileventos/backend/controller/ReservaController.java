@@ -1,11 +1,15 @@
 package com.alquileventos.backend.controller;
 
+import com.alquileventos.backend.dto.common.ApiResponseDTO;
+import com.alquileventos.backend.dto.reserva.*;
 import com.alquileventos.backend.entity.Reserva;
+import com.alquileventos.backend.security.CustomUserPrincipal;
 import com.alquileventos.backend.service.ReservaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -19,6 +23,60 @@ import java.util.List;
 public class ReservaController {
     
     private final ReservaService reservaService;
+
+    @GetMapping("/disponibilidad")
+    public ResponseEntity<ApiResponseDTO<DisponibilidadDTO>> verificarDisponibilidadLocal(
+            @RequestParam Integer localId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin) {
+
+        DisponibilidadDTO disponibilidad = reservaService.verificarDisponibilidad(
+                localId, fecha, horaInicio, horaFin);
+
+        return ResponseEntity.ok(ApiResponseDTO.success("Consulta realizada", disponibilidad));
+    }
+
+    @PostMapping("/calcular-presupuesto")
+    public ResponseEntity<ApiResponseDTO<PresupuestoDTO>> calcularPresupuesto(
+            @Valid @RequestBody CrearReservaDTO datos) {
+
+        PresupuestoDTO presupuesto = reservaService.calcularPresupuesto(datos);
+        return ResponseEntity.ok(ApiResponseDTO.success("Presupuesto calculado", presupuesto));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponseDTO<ReservaDetalleDTO>> crearReserva(
+            @Valid @RequestBody CrearReservaDTO datos,
+            @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
+
+        ReservaDetalleDTO reserva = reservaService.crearReserva(datos, userPrincipal.getId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponseDTO.success("Reserva creada exitosamente", reserva));
+    }
+
+    @GetMapping("/mis-reservas")
+    public ResponseEntity<ApiResponseDTO<List<ReservaResumenDTO>>> misReservas(
+            @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
+
+        List<ReservaResumenDTO> reservas = reservaService.obtenerMisReservas(userPrincipal.getId());
+        return ResponseEntity.ok(ApiResponseDTO.success("Reservas obtenidas", reservas));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     

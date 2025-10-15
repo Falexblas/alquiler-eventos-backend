@@ -32,6 +32,7 @@ public interface LocalRepository extends JpaRepository<Local, Integer> {
             "AND (:aforoMin IS NULL OR l.aforoMaximo >= :aforoMin) " +
             "AND (:precioMin IS NULL OR l.precioHora >= :precioMin) " +
             "AND (:precioMax IS NULL OR l.precioHora <= :precioMax)")
+
     List<Local> buscarConFiltros(
             @Param("idDistrito") Integer idDistrito,
             @Param("idTipoEvento") Integer idTipoEvento,

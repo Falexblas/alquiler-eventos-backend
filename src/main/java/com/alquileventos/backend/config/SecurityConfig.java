@@ -61,8 +61,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/tipos-evento").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/mobiliario").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reservas/disponibilidad").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reservas/calcular-presupuesto").permitAll()
 
-                        // Cliente
+                        // Cliente autenticado
                         .requestMatchers("/api/usuarios/me/**").hasRole("CLIENTE")
                         .requestMatchers(HttpMethod.POST, "/api/reservas").hasRole("CLIENTE")
                         .requestMatchers("/api/reservas/mis-reservas").hasRole("CLIENTE")
@@ -78,7 +79,7 @@ public class SecurityConfig {
     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        //Configurar para react y dominio
+
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
